@@ -194,8 +194,8 @@ if __name__ == "__main__":
     ap.add_argument("--list-formats", help="List available formats without downloading", action="store_true")
     ap.add_argument("--download", metavar="filepath", type=str, help="Download the video to this file (should end with .ts), e.g. gronkh703.ts", default=None)
     ap.add_argument("--format", metavar="format", type=str, help="The format to download, default is 720p", default="720p")
-    ap.add_argument("--start", metavar="timestamp", type=str, help="Where to start downloading, e.g. at 01:00:00", default=None)
-    ap.add_argument("--stop", metavar="timestamp", type=str, help="Where to stop downloading, e.g. at 02:50:12", default=None)
+    ap.add_argument("--start", metavar="timestamp", type=str, help="At which timestamp to start downloading, e.g. at 01:00:00", default=None)
+    ap.add_argument("--stop", metavar="timestamp", type=str, help="At which timestamp to stop downloading, e.g. at 02:50:12", default=None)
     args = ap.parse_args()
     # Create an instance of a GTVEpisodeDownloader
     v = GTVEpisodeDownloader(args.episode)
