@@ -171,12 +171,15 @@ class GTVEpisodeDownloader:
         # Write data to file
         with open(output_filepath, "wb") as o:
             try:
+                i = 0
                 # download & write the data
-                ccur = 0
                 for c in video_stream.download_chunks(start, stop):
-                    print(f"Downloading chunk {start} - {stop}: {ccur}")
+                    # calculate percentage
+                    i += 1
+                    pct = i / (stop - start) * 100
+                    print(f"Downloading... {pct:.2f}%")
                     o.write(c)
-                    ccur += 1
+                o.flush()
             except KeyboardInterrupt:
                 # Ensure that the data is flushed
                 o.flush()
