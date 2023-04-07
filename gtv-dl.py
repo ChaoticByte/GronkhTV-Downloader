@@ -7,8 +7,9 @@ import re
 from argparse import ArgumentParser
 from gzip import decompress
 from json import loads
-from os import get_terminal_size
+from os import get_terminal_size, linesep
 from string import ascii_letters, digits
+from sys import stdout
 from time import strptime
 from unicodedata import normalize as normalize_unicode
 from urllib import request as _request
@@ -27,10 +28,10 @@ def request_get(url: str, headers: dict = {}) -> bytes:
             return response_data
 
 def rule(char:str="="):
-    for i in range(get_terminal_size().columns):
-        print(char, end="")
-    print()
-
+    for i in range(get_terminal_size().columns - 1):
+        stdout.write(char)
+    stdout.write(linesep)
+    stdout.flush()
 
 class GTVideoStream:
 

@@ -1,9 +1,9 @@
 # GronkhTV-Downloader
 
 A simple python-written CLI tool to download videos from https://gronkh.tv without re-encoding.  
-Doesn't require anything but an up-to-date Python version. Tested on Ubuntu 22.04
+Doesn't require anything but an up-to-date Python version (3.10). Tested on Linux (Ubuntu 22.04) and Windows (Powershell).
 
-## Example usage:
+## Example usage
 
 First, get the episode id from https://gronkh.tv - e.g. for https://gronkh.tv/streams/700?at=5h13m28s the episode id is `700`.
 
@@ -18,7 +18,7 @@ Downloading to "GTV0700, 2023-03-03 - #FREiAB18 ⭐ Oder 24_7 auf @GronkhTV ⭐ 
 rchiv !horde2.ts"
 Format: 720p
 ================================================================================
-00.05%
+100.00%
 ```
 
 Download only minute 10 to 12 and write the video file to `~/gronkhtv-ep-700.ts`:
@@ -31,7 +31,7 @@ GTV0700, 2023-03-03 - #FREiAB18 ⭐ Oder 24/7 auf @GronkhTV ⭐ !archiv !horde2
 Downloading to "/home/julian/gronkhtv-ep-700.ts"
 Format: 720p
 ================================================================================
-20.00%
+100.00%
 ```
 
 Download the episode in a specific format (in this case, FullHD at 60fps):
@@ -45,7 +45,7 @@ Downloading to "GTV0700, 2023-03-03 - #FREiAB18 ⭐ Oder 24_7 auf @GronkhTV ⭐ 
 rchiv !horde2.ts"
 Format: 1080p60
 ================================================================================
-00.04%
+100.00%
 ```
 
 List available formats:
@@ -65,4 +65,3 @@ Get some help:
 ```
 ./gtv-dl.py --help
 ```
-
