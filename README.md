@@ -1,33 +1,68 @@
 # GronkhTV-Downloader
 
 A simple python-written CLI tool to download videos from https://gronkh.tv without re-encoding.  
-Doesn't require anything but an up-to-date Python version.
+Doesn't require anything but an up-to-date Python version. Tested on Ubuntu 22.04
 
 ## Example usage:
 
-First, get the episode id from https://gronkh.tv - e.g. for https://gronkh.tv/streams/703?at=5h13m28s the episode id is `703`.
+First, get the episode id from https://gronkh.tv - e.g. for https://gronkh.tv/streams/700?at=5h13m28s the episode id is `700`.
 
-Download a complete stream in the default format (720p):
+Download the complete stream in the default format (720p) using the title as the filename:
 ```
-./gtv-dl.py 703 --download gronkhtv-ep-703.ts
+./gtv-dl.py 700
+
+================================================================================
+GTV0700, 2023-03-03 - #FREiAB18 ⭐ Oder 24/7 auf @GronkhTV ⭐ !archiv !horde2
+================================================================================
+Downloading to "GTV0700, 2023-03-03 - #FREiAB18 ⭐ Oder 24_7 auf @GronkhTV ⭐ !a
+rchiv !horde2.ts"
+Format: 720p
+================================================================================
+00.05%
 ```
 
-Download only minute 10 to 12:
+Download only minute 10 to 12 and write the video file to `~/gronkhtv-ep-700.ts`:
 ```
-./gtv-dl.py 703 --download gronkhtv-ep-703.ts --start 00:10:00 --stop 00:12:00
+./gtv-dl.py 700 --start 00:10:00 --stop 00:12:00 --download-to ~/gronkhtv-ep-700.ts
+
+================================================================================
+GTV0700, 2023-03-03 - #FREiAB18 ⭐ Oder 24/7 auf @GronkhTV ⭐ !archiv !horde2
+================================================================================
+Downloading to "/home/julian/gronkhtv-ep-700.ts"
+Format: 720p
+================================================================================
+20.00%
+```
+
+Download the episode in a specific format (in this case, FullHD at 60fps):
+```
+./gtv-dl.py 700 --format 1080p60
+
+================================================================================
+GTV0700, 2023-03-03 - #FREiAB18 ⭐ Oder 24/7 auf @GronkhTV ⭐ !archiv !horde2
+================================================================================
+Downloading to "GTV0700, 2023-03-03 - #FREiAB18 ⭐ Oder 24_7 auf @GronkhTV ⭐ !a
+rchiv !horde2.ts"
+Format: 1080p60
+================================================================================
+00.04%
 ```
 
 List available formats:
 ```
-./gtv-dl.py 703 --list-formats
-```
+./gtv-dl.py 700 --list-formats
 
-Download the first minute of the video in a specific format (in this case, FullHD at 60fps):
-```
-./gtv-dl.py 703 --download gronkhtv-ep-703.ts --stop 00:01:00 --format 1080p60
+================================================================================
+GTV0700, 2023-03-03 - #FREiAB18 ⭐ Oder 24/7 auf @GronkhTV ⭐ !archiv !horde2
+================================================================================
+Found the following formats:
+ - 1080p60
+ - 720p
+ - 360p
 ```
 
 Get some help:
 ```
 ./gtv-dl.py --help
 ```
+
