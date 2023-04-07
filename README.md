@@ -14,7 +14,7 @@ Download a complete stream in the default format (720p):
 
 Download only minute 10 to 12:
 ```
-./gtv-dl.py 703 --download gronkhtv-ep-703.ts --start "00:10:00" --stop "00:12:00"
+./gtv-dl.py 703 --download gronkhtv-ep-703.ts --start 00:10:00 --stop 00:12:00
 ```
 
 List available formats:
@@ -24,7 +24,7 @@ List available formats:
 
 Download the first minute of the video in a specific format (in this case, FullHD at 60fps):
 ```
-./gtv-dl.py 703 --download gronkhtv-ep-703.ts --stop "00:01:00" --format 1080p60
+./gtv-dl.py 703 --download gronkhtv-ep-703.ts --stop 00:01:00 --format 1080p60
 ```
 
 Get some help:

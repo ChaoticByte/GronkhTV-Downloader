@@ -176,9 +176,10 @@ class GTVEpisodeDownloader:
                     # calculate percentage
                     i += 1
                     pct = i / (stop - start) * 100
-                    print(f"Downloading... {pct:.2f}%")
+                    print(f"\rDownloading {pct:05.2f}%", end="")
                     o.write(c)
                 o.flush()
+                print()
             except KeyboardInterrupt:
                 # Ensure that the data is flushed
                 o.flush()
