@@ -7,7 +7,6 @@ import re
 from argparse import ArgumentParser
 from gzip import decompress
 from json import loads
-from time import mktime
 from time import strptime
 from urllib import request as _request
 
