@@ -7,7 +7,8 @@ import re
 from argparse import ArgumentParser
 from gzip import decompress
 from json import loads
-from os import get_terminal_size, linesep
+from os import get_terminal_size, linesep, remove
+from os.path import exists
 from string import ascii_letters, digits
 from sys import stdout
 from time import strptime
@@ -191,11 +192,12 @@ class GTVEpisodeDownloader:
         print(self.info[0])
         rule()
 
-    def download(self, output_filepath: str, desired_format: str, start_timestamp: str = None, stop_timestamp: str = None):
+    def download(self, output_filepath: str, desired_format: str, start_timestamp: str = None, stop_timestamp: str = None, overwrite: bool = False):
         assert type(output_filepath) == str or output_filepath is None
         assert type(desired_format) == str
         assert type(start_timestamp) == str or start_timestamp == None
         assert type(stop_timestamp) == str or stop_timestamp == None
+        assert type(overwrite) == bool
         # Query metadata (info and formats)
         self.get_meta()
         # Check if desired format is available
@@ -215,26 +217,53 @@ class GTVEpisodeDownloader:
         # Get video filename
         if output_filepath is None:
             output_filepath = self.info[1]
-        # Write data to file
-        with open(output_filepath, "wb") as o:
-            try:
-                i = 0
-                # download & write the data
-                print(f"Downloading to \"{output_filepath}\"")
-                print(f"Format: {desired_format}")
-                rule()
-                for c in video_stream.download_chunks(start, stop):
-                    # calculate percentage
-                    i += 1
-                    pct = i / (stop - start) * 100
-                    print(f"\r{pct:05.2f}%", end="")
-                    o.write(c)
-                o.flush()
-                print()
-            except KeyboardInterrupt:
-                # Ensure that the data is flushed
-                o.flush()
-                exit("Received KeyboardInterrupt")
+        info_output_filepath = f"{output_filepath}.gtv-dl-info"
+        # Set current chunk offset
+        current_dl_offset = 0
+        if exists(info_output_filepath) and not overwrite:
+            with open(info_output_filepath, "r") as info:
+                info_data = info.read()
+                if info_data != "":
+                    current_dl_offset = min(max(int(info_data), 0), stop-start)
+        # Download
+        with open(output_filepath, "a+b") as o:
+            # Download
+            if exists(output_filepath) and overwrite:
+                # Only truncate the file to 0 when it's being overwritten
+                o.truncate(0)
+            elif exists(output_filepath) and current_dl_offset == 0:
+                o.close()
+                exit("Error. The file already exists and the download can not be continued.")
+            with open(info_output_filepath, "w") as info:
+                try:
+                    # download & write the data
+                    if current_dl_offset > 0:
+                        print(f"Continuing download to \"{output_filepath}\"")
+                    else:
+                        print(f"Downloading to \"{output_filepath}\"")
+                    print(f"Format: {desired_format}")
+                    rule()
+                    for c in video_stream.download_chunks(start + current_dl_offset, stop):
+                        current_dl_offset += 1
+                        # calculate & print progress
+                        pct = current_dl_offset / (stop - start) * 100
+                        print(f"\r{pct:05.2f}%", end="")
+                        # Write data
+                        o.write(c)
+                        # Write info data
+                        info.seek(0)
+                        info.write(str(current_dl_offset))
+                        info.truncate()
+                    o.flush()
+                    print(" done.")
+                except KeyboardInterrupt:
+                    # Ensure that the data is flushed
+                    o.flush()
+                    o.close()
+                    info.flush()
+                    info.close()
+                    exit("Received KeyboardInterrupt")
+                remove(info_output_filepath)
 
     def get_meta(self):
         if self.info is None:
@@ -245,12 +274,13 @@ class GTVEpisodeDownloader:
 
 if __name__ == "__main__":
     ap = ArgumentParser()
-    ap.add_argument("episode", type=int, help="The ID of that episode, e.g. 703 for https://gronkh.tv/streams/703?at=2h14m53s")
+    ap.add_argument("episode", type=int, help="The ID of that episode, e.g. 703 for https://gronkh.tv/streams/703")
     ap.add_argument("--list-formats", help="List available formats without downloading", action="store_true")
     ap.add_argument("--download-to", metavar="filepath", type=str, help="Download the video to this file (should end with .ts), e.g. gronkh703.ts", default=None)
     ap.add_argument("--format", metavar="format", type=str, help="The format to download, default is 720p", default="720p")
     ap.add_argument("--start", metavar="timestamp", type=str, help="At which timestamp to start downloading, e.g. at 01:00:00", default=None)
     ap.add_argument("--stop", metavar="timestamp", type=str, help="At which timestamp to stop downloading, e.g. at 02:50:12", default=None)
+    ap.add_argument("--overwrite", help="Overwrite the file if it already exists", action="store_true")
     args = ap.parse_args()
     # Create an instance of a GTVEpisodeDownloader
     v = GTVEpisodeDownloader(args.episode)
@@ -269,6 +299,6 @@ if __name__ == "__main__":
     else:
         did_something = True
         v.print_title()
-        v.download(args.download_to, args.format, args.start, args.stop)
+        v.download(args.download_to, args.format, args.start, args.stop, args.overwrite)
     if not did_something:
         ap.print_usage()
