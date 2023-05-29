@@ -33,6 +33,25 @@ def rule(char:str="="):
     stdout.write(linesep)
     stdout.flush()
 
+def sanitize_unicode_filepath(filepath: str):
+    # normalize unicode string
+    filename_unfiltered = normalize_unicode("NFKD", filepath)
+    # find all unicode characters
+    unicode_chars = ""
+    for char in filename_unfiltered:
+        if str(char.encode("unicode-escape"))[2] == '\\' and not char in unicode_chars:
+            unicode_chars += char
+    # build allowlist
+    allowed = ascii_letters + digits + "_-!,.@+# " + unicode_chars
+    # filter
+    filename = ""
+    for char in filename_unfiltered:
+        if char in allowed:
+            filename += char
+        else:
+            filename += "_"
+    return filename.strip()
+
 class GTVideoStream:
 
     _CDN_HEADERS = {
@@ -155,23 +174,8 @@ class GTVEpisodeDownloader:
         # Get title from API
         api_url_info_ep = self._API_URL_INFO.format(episode=self.episode)
         title = loads(request_get(api_url_info_ep, self._API_HEADERS))["title"]
-        # normalize unicode string
-        filename_unfiltered = normalize_unicode("NFKD", title)
-        # find all unicode characters
-        unicode_chars = ""
-        for char in filename_unfiltered:
-            if str(char.encode("unicode-escape"))[2] == '\\' and not char in unicode_chars:
-                unicode_chars += char
-        # build allowlist
-        allowed = ascii_letters + digits + "_-!,.@+# " + unicode_chars
-        # filter
-        filename = ""
-        for char in filename_unfiltered:
-            if char in allowed:
-                filename += char
-            else:
-                filename += "_"
-        filename = filename.strip() + ".ts"
+        filename = sanitize_unicode_filepath(title)
+        filename += ".ts"
         self.info = (title, filename)
 
     def _gtv_get_formats(self):
