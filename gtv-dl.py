@@ -7,7 +7,7 @@ import re
 from argparse import ArgumentParser
 from gzip import decompress
 from json import loads
-from os import get_terminal_size, linesep, remove
+from os import get_terminal_size, linesep, remove, stat
 from os.path import exists
 from string import ascii_letters, digits
 from sys import stdout
@@ -228,7 +228,7 @@ class GTVEpisodeDownloader:
         # Download
         with open(output_filepath, "a+b") as o:
             # Download
-            if exists(output_filepath) and overwrite:
+            if exists(output_filepath) and (overwrite or stat(output_filepath).st_size == 0):
                 # Only truncate the file to 0 when it's being overwritten
                 o.truncate(0)
             elif exists(output_filepath) and current_dl_offset == 0:
