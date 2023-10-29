@@ -11,7 +11,7 @@ from os import get_terminal_size, linesep, remove, stat
 from os.path import exists
 from string import ascii_letters, digits
 from sys import stdout
-from time import strptime
+from time import sleep, strptime, time
 from unicodedata import normalize as normalize_unicode
 from urllib import request as _request
 
@@ -71,6 +71,8 @@ class GTVideoStream:
         "TE": "trailers"
     }
 
+    RATELIMIT = 25000000 # 25 Megabyte/s
+
     def __init__(self, baseurl: str, chunks: list, chunk_duration: float):
         assert type(baseurl) == str
         assert type(chunks) == list
@@ -116,7 +118,16 @@ class GTVideoStream:
         if stop == -1:
             stop = len(self.chunks)
         for c in self.chunks[start:stop]:
-            yield request_get(self.baseurl + c, self._CDN_HEADERS)
+            t1 = time()
+            data = request_get(self.baseurl + c, self._CDN_HEADERS)
+            dt = time() - t1
+            # We don't want to exceed rate limiting, so we check
+            # if we are too fast and slow down if necessary
+            speed = len(data) / dt
+            if speed > self.RATELIMIT:
+                ratelimit_defer = (speed - self.RATELIMIT) / self.RATELIMIT * dt
+                sleep(ratelimit_defer)
+            yield data
 
 
 class GTVEpisodeDownloader:
