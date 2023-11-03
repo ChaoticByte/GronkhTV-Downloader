@@ -123,11 +123,12 @@ class GTVideoStream:
             dt = time() - t1
             # We don't want to exceed rate limiting, so we check
             # if we are too fast and slow down if necessary
-            speed = len(data) / dt
-            if speed > self.RATELIMIT:
-                ratelimit_defer = (speed - self.RATELIMIT) / self.RATELIMIT * dt
+            rate = len(data) / dt
+            if rate > self.RATELIMIT:
+                ratelimit_defer = (rate - self.RATELIMIT) / self.RATELIMIT * dt
                 sleep(ratelimit_defer)
-            yield data
+            actual_rate = rate - max(rate - self.RATELIMIT, 0)
+            yield data, actual_rate
 
 
 class GTVEpisodeDownloader:
@@ -254,11 +255,12 @@ class GTVEpisodeDownloader:
                         print(f"Downloading to \"{output_filepath}\"")
                     print(f"Format: {desired_format}")
                     rule()
-                    for c in video_stream.download_chunks(start + current_dl_offset, stop):
+                    for chunk in video_stream.download_chunks(start + current_dl_offset, stop):
+                        c, rate = chunk
                         current_dl_offset += 1
                         # calculate & print progress
                         pct = current_dl_offset / (stop - start) * 100
-                        print(f"\r{pct:05.2f}%", end="")
+                        print(f"\r{pct:05.2f}% {(rate/1000000):05.3f} MB/s", end="")
                         # Write data
                         o.write(c)
                         # Write info data
