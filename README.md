@@ -1,3 +1,7 @@
+## This project was discontinued. Please use the new [lurch-dl](https://github.com/ChaoticByte/lurch-dl) :)
+
+---
+
 # GronkhTV-Downloader
 
 A simple python-written CLI tool to download videos from https://gronkh.tv without re-encoding.  
